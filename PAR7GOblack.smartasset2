@@ -1,0 +1,15 @@
+match tx {
+  case t : TransferTransaction =>
+    let trustedRecipient = addressFromString("3PG5CZ82jZDBKRkWwu7FWiAH9DhDfbhUzrA")
+    let issuerPk = base58'AqujqfzxkRSf9S66wMiM6jYWMEKy7GU34ToZmbzvFCqc'
+    let sigPK = base58'Gc1qZnEpnMwCcTgovP2LYvdKVW43U713wzZ3XXuN5NM6'
+
+    if(t.senderPublicKey == issuerPk)then{true}
+    || throw("Sending to other than issuer is not permitted")
+    else if(t.senderPublicKey == sigPK)then{true}
+    || throw("Sending to other than issuer is not permitted")
+    else false
+ case s :SetAssetScriptTransaction | SetScriptTransaction =>true
+ case _ => false
+ || throw("Sending to other than issuer is not permitted")
+}

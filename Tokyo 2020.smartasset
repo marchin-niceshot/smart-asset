@@ -1,0 +1,11 @@
+{-# STDLIB_VERSION 3 #-}
+{-# CONTENT_TYPE EXPRESSION #-}
+{-# SCRIPT_TYPE ASSET #-}
+
+let tokyoOlympic = 1595588400000 #2020.7.24 20:00:00 JST
+match tx {
+    case tx: ExchangeTransaction | TransferTransaction | MassTransferTransaction | BurnTransaction =>
+         tx.timestamp > tokyoOlympic
+    
+    case _  => false
+}

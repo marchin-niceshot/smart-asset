@@ -1,0 +1,52 @@
+{-# STDLIB_VERSION 3 #-}
+{-# CONTENT_TYPE EXPRESSION #-}
+{-# SCRIPT_TYPE ASSET #-}
+
+# PAR7/PAR7PAY=1:100
+# WAPP/PAR7PAY=free
+let PAR7Price = 10000000000 #PAR7 2 decimels VS Par7 2 desimels
+let WAVESPrice = 3000000000 #0.00003waves
+let whitePrice = 30000000 #0.0000003waves
+let PAR7ID = base58'3Janbh2r7ZQjiUM3sWVswVGHWyQB2TPxm348QvuX5v6c' # 2 decimals　
+let PAR7GOID = base58'6eux2bb8e825btZzvCFXHTZWHLf89KCqcm1kVwNCiQyP'
+let PAR7GOWlistID = base58'HsrqDYUWwXrQwQE54dpRuoRuh5PiZsep5USvJR4AyFRG'
+let PAR7GOBKID = base58'CGPaL3bXdH3fGbetQCf5iPVdQn9DzGt1oZSi783SMLDG'
+let WAPPID = base58'4HWKN5w7GApw2bCV33ovzUn7CLMizFc3TTdo7sdBBpte'
+let PAR7GOThowID = base58'8gSahxvsezFxG7ZAgk4WLWSL6hYZkQTXyHMzt2BAqrPk'
+
+match tx {
+    case e: ExchangeTransaction =>
+        let pair = e.sellOrder.assetPair
+        let tradedForWaves = ! isDefined(pair.amountAsset) ||
+                             ! isDefined(pair.priceAsset) 
+        if(assetBalance(e.sellOrder.sender, PAR7GOBKID) >= 10 && assetBalance(e.buyOrder.sender,PAR7GOBKID) >= 10) then{false}
+        || throw("Your PAR7PAY freeze")
+        else if(assetBalance(e.sellOrder.sender, PAR7GOWlistID) >= 10 && assetBalance(e.buyOrder.sender,PAR7GOWlistID) >= 10 && tradedForWaves && e.price == whitePrice) then{true}
+        || throw("Only whitelist person can exchange fix 0.0000003 WAVES")
+        else if(tradedForWaves && e.price >= WAVESPrice) then{true}
+        || throw("Price over 0.00003WAVES & Fix 100PAR7 & free WAPP only")
+        else if(e.buyOrder.assetPair.priceAsset == WAPPID )then{true}
+        || throw("Price over 0.00003WAVES & Fix 100PAR7 & free WAPP only")
+        else if(e.buyOrder.assetPair.priceAsset == PAR7ID ) && ( e.price == PAR7Price) then{true}
+        || throw("Exchange with PAR7 limit price of 100PAR7 only! thank you")
+        else false
+        || throw("Price over 0.00003WAVES & Fix 100PAR7 & free WAPP only")
+
+  case m : MassTransferTransaction =>
+       if(assetBalance(m.sender, PAR7GOBKID) >=10 )then{false}
+       || throw("Your PAR7PAY freeze")
+       else if(assetBalance(m.sender, PAR7GOID) >= 10 || assetBalance(m.sender, PAR7GOWlistID) >= 10)then{true}
+       || throw("Not possible to send mass transfer except by the list person")
+       else false
+       || throw("Not possible to send mass transfer except by the list person")
+
+  case t :TransferTransaction =>
+         if(assetBalance(t.sender, PAR7GOBKID) >=10 )then{false}
+       || throw("Your PAR7PAY freeze")
+       else true
+
+  case s : SetAssetScriptTransaction =>true
+
+  case _ => false
+       || throw("It seems that you do not allow this operation")
+}

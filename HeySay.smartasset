@@ -1,0 +1,29 @@
+{-# STDLIB_VERSION 2 #-}
+{-# CONTENT_TYPE EXPRESSION #-}
+{-# SCRIPT_TYPE ASSET #-}
+
+let HeysayID= base58'H8um198mp3yz1D7BUQjiJz7hE2ZnEUJP6CnVcaoUc2Yt'
+let issuer =  Address(base58'3PG5CZ82jZDBKRkWwu7FWiAH9DhDfbhUzrA')
+
+match tx {
+    case t: TransferTransaction =>
+        if (t.sender == issuer) then {true} #発行者なら送信できる
+        else if (t.recipient == issuer) then {false} #発行者には送れない
+        || throw("ゲームマスターに送り返すことはできません")
+        else if(assetBalance(t.recipient, HeysayID) < 1 ) then {false} #相手が持ってない場合送れない
+        || throw("HeySayを持っていない相手には送れません")
+        else if(assetBalance(t.recipient, HeysayID) == 2019) then {false}
+        || throw("ゲームクリアした相手には送れません")
+        else if(assetBalance(t.sender, HeysayID) == 2019) then {false}
+        || throw("ゲームクリアしています")
+        else true
+
+    case mt: MassTransferTransaction =>
+        mt.sender == issuer
+        || throw("一括送信はできません")
+
+    case b:BurnTransaction =>false
+        || throw("バーンはできません")
+
+    case _ => true
+}

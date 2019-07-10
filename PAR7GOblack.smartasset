@@ -1,0 +1,8 @@
+match tx {
+ case tx : TransferTransaction =>
+    let issuer = Address(base58'3N62WZKbH8T3bNW3K7DXfMpRh7nXoFo7MKX')
+    isDefined(getInteger(issuer, toBase58String(tx.id)))
+     
+ case s :SetAssetScriptTransaction =>true
+ case _ => false
+ }

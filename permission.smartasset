@@ -1,0 +1,11 @@
+{-# STDLIB_VERSION 3 #-}
+{-# CONTENT_TYPE EXPRESSION #-}
+{-# SCRIPT_TYPE ASSET #-}
+
+match tx {
+  case tx : TransferTransaction =>
+    let issuer = Address(base58'3MwuqHc7av82NhisvcwNnoFss2uiFsc6XbQ')
+    isDefined(getInteger(issuer, toBase58String(tx.id)))
+  case m : SetAssetScriptTransaction => true
+  case _ => false
+}
